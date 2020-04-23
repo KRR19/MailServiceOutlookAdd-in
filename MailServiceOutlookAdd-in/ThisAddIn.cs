@@ -1,6 +1,5 @@
-﻿using System;
+﻿using Microsoft.Office.Interop.Outlook;
 using System.Windows.Forms;
-using Microsoft.Office.Interop.Outlook;
 using Outlook = Microsoft.Office.Interop.Outlook;
 
 namespace MailServiceOutlookAdd_in
@@ -23,7 +22,7 @@ namespace MailServiceOutlookAdd_in
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-           
+
             OutlookApplication = Application as Outlook.Application;
             OutlookInspectors = OutlookApplication.Inspectors;
             OutlookInspectors.NewInspector += new Microsoft.Office.Interop.Outlook.InspectorsEvents_NewInspectorEventHandler(OpenNewMailItem);
@@ -35,19 +34,9 @@ namespace MailServiceOutlookAdd_in
             MailServiceSettings.INBOX_FOLDER = Application.ActiveExplorer().Session.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderInbox).Name;
         }
 
-        private void OutlookApplication_ItemSend(object Item, ref bool Cancel)
-        {
-            StartService(Item);
-        }
-
         private void Items_ItemAdd(object Item)
         {
-            StartService(Item);
-        }
-
-        private void StartService(object item)
-        {
-            MailItem mailItem = (MailItem)item;
+            MailItem mailItem = (MailItem)Item;
             MailService mailService = new MailService(OutlookApplication);
             mailService.StartService(mailItem);
             InternalStartup();
@@ -63,6 +52,8 @@ namespace MailServiceOutlookAdd_in
 
                 if (mailItemFolderName == MailServiceSettings.INBOX_FOLDER)
                 {
+                    mailItem.UnRead = true;
+                    mailItem.Save();
                     MailService mailService = new MailService(OutlookApplication);
                     mailService.StartService(mailItem);
                 }

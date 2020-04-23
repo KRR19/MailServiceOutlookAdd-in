@@ -37,7 +37,7 @@ namespace MailServiceOutlookAdd_in
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.FoldersTreeView = new System.Windows.Forms.TreeView();
             this.SaveButton = new System.Windows.Forms.Button();
-            this.CancelButton = new System.Windows.Forms.Button();
+            this.CancelBtn = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -70,22 +70,22 @@ namespace MailServiceOutlookAdd_in
             this.SaveButton.UseVisualStyleBackColor = true;
             this.SaveButton.Click += new System.EventHandler(this.SaveButton_Click);
             // 
-            // CancelButton
+            // CancelBtn
             // 
-            this.CancelButton.Location = new System.Drawing.Point(246, 403);
-            this.CancelButton.Name = "CancelButton";
-            this.CancelButton.Size = new System.Drawing.Size(131, 36);
-            this.CancelButton.TabIndex = 2;
-            this.CancelButton.Text = "Abbrechen";
-            this.CancelButton.UseVisualStyleBackColor = true;
-            this.CancelButton.Click += new System.EventHandler(this.CancelButton_Click);
+            this.CancelBtn.Location = new System.Drawing.Point(246, 403);
+            this.CancelBtn.Name = "CancelBtn";
+            this.CancelBtn.Size = new System.Drawing.Size(131, 36);
+            this.CancelBtn.TabIndex = 2;
+            this.CancelBtn.Text = "Abbrechen";
+            this.CancelBtn.UseVisualStyleBackColor = true;
+            this.CancelBtn.Click += new System.EventHandler(this.CancelButton_Click);
             // 
             // ProjectFolders
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(401, 451);
-            this.Controls.Add(this.CancelButton);
+            this.Controls.Add(this.CancelBtn);
             this.Controls.Add(this.SaveButton);
             this.Controls.Add(this.groupBox1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -103,6 +103,6 @@ namespace MailServiceOutlookAdd_in
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.TreeView FoldersTreeView;
         private System.Windows.Forms.Button SaveButton;
-        private System.Windows.Forms.Button CancelButton;
+        private System.Windows.Forms.Button CancelBtn;
     }
 }

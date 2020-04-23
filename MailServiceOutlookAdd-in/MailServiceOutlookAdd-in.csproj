@@ -214,7 +214,7 @@
     <ManifestKeyFile>MailServiceOutlookAdd-in_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>9B0816EA434B2038A89196BDE414D35009307EEA</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>4C20245673C61CC35655B167FDBBC7FF12471A80</ManifestCertificateThumbprint>
   </PropertyGroup>
   <!-- Include the build rules for a C# project. -->
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
