@@ -15,21 +15,21 @@ namespace MailServiceOutlookAdd_in
         {
             _Application = application;
         }
-        public void StartService(Outlook.MailItem item)
+        public Outlook.Folder StartDialogService()
         {
             DialogResult dialogResult = MessageBox.Show(MailServiceSettings.QuestionMessageBody, MailServiceSettings.QuestionMessageHeader, MessageBoxButtons.YesNo);
             if (dialogResult == DialogResult.No)
             {
-                return;
+                return null;
             }
             ProjectFolders selectFolders = new ProjectFolders(_Application);
             if (selectFolders.ShowDialog() == DialogResult.No)
             {
-                return;
+                return null;
             }
             FolderFinder folderFinder = new FolderFinder(_Application);
             Outlook.Folder selectedFolder = folderFinder.FindFolderByPath(selectFolders.SelectedFolder);
-            item.Move(selectedFolder);
+            return selectedFolder;
         }
 
     }
