@@ -39,8 +39,11 @@ namespace MailServiceOutlookAdd_in
             MailItem mailItem = (MailItem)Item;
             MailService mailService = new MailService(OutlookApplication);
             mailItem.SaveSentMessageFolder = mailService.StartDialogService();
-            mailItem.Save();
-            mailItem.Send();
+            if (mailItem.SaveSentMessageFolder != null)
+            {
+                mailItem.Save();
+                mailItem.Send();
+            }
         }
 
         private void OpenNewMailItem(Inspector Inspector)
@@ -57,7 +60,8 @@ namespace MailServiceOutlookAdd_in
                     mailItem.Save();
                     MailService mailService = new MailService(OutlookApplication);
                     Outlook.Folder selectedFolder = mailService.StartDialogService();
-                    mailItem.Move(selectedFolder);
+                    if (selectedFolder != null)
+                        mailItem.Move(selectedFolder);
                 }
             }
         }

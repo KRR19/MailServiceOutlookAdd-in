@@ -52,7 +52,7 @@ namespace MailServiceOutlookAdd_in
         }
         private void CancelButton_Click(object sender, EventArgs e)
         {
-            this.DialogResult = DialogResult.Cancel;
+            this.DialogResult = DialogResult.No;
             this.Close();
         }
 
