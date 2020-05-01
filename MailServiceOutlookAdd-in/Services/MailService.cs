@@ -1,4 +1,6 @@
-﻿using System.Windows.Forms;
+﻿using MailServiceOutlookAdd_in.Models;
+using Microsoft.Office.Interop.Outlook;
+using System.Windows.Forms;
 using Outlook = Microsoft.Office.Interop.Outlook;
 
 namespace MailServiceOutlookAdd_in
@@ -32,5 +34,17 @@ namespace MailServiceOutlookAdd_in
             return selectedFolder;
         }
 
+        public void SendToRecipients(string to, RecipientService recipient)
+        {
+            MailItem mail = _Application.CreateItem(OlItemType.olMailItem);
+            mail.To = recipient.FilterByDomain(to);
+            mail.Subject = recipient.Subject;
+            mail.Body = recipient.Body;
+            mail.DeleteAfterSubmit = true;
+            mail.FlagRequest = MailServiceSettings.AutoMailFlag;
+            mail.Display(false);
+            mail.GetInspector.Activate();
+           // mail.Send();
+        }
     }
 }

@@ -30,10 +30,10 @@
     <DefineConstants>VSTO40</DefineConstants>
     <IsWebBootstrapper>False</IsWebBootstrapper>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <PublishUrl>C:\Users\Qwert\Desktop\1\</PublishUrl>
+    <PublishUrl>C:\Users\Qwert\Desktop\MailServiceOutlookAdd-in\</PublishUrl>
     <InstallUrl />
     <TargetCulture>en</TargetCulture>
-    <ApplicationVersion>1.0.0.2</ApplicationVersion>
+    <ApplicationVersion>1.0.0.4</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
     <UpdateEnabled>true</UpdateEnabled>
     <UpdateInterval>7</UpdateInterval>
@@ -183,8 +183,9 @@
   -->
   <ItemGroup>
     <Compile Include="FolderFinder.cs" />
-    <Compile Include="MailService.cs" />
-    <Compile Include="MailServiceSettings.cs" />
+    <Compile Include="Services\MailService.cs" />
+    <Compile Include="Services\MailServiceSettings.cs" />
+    <Compile Include="Services\RecipientService.cs" />
     <Compile Include="ProjectFolders.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -196,6 +197,7 @@
     </Compile>
     <EmbeddedResource Include="ProjectFolders.resx">
       <DependentUpon>ProjectFolders.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -215,6 +217,7 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="Services\StringService.cs" />
     <Compile Include="ThisAddIn.cs">
       <SubType>Code</SubType>
     </Compile>

@@ -19,7 +19,7 @@ namespace MailServiceOutlookAdd_in
 
         private void CreateFoldersTree()
         {
-            string folderName = MailServiceSettings.RootProjectFolderName;
+            string folderName = MailServiceSettings.RootFolder;
 
             Outlook.Folder inBox = (Outlook.Folder)_Application.ActiveExplorer().Session.DefaultStore.GetRootFolder() as Outlook.Folder;
             try

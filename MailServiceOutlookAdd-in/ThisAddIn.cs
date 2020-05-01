@@ -1,4 +1,7 @@
-﻿using Microsoft.Office.Interop.Outlook;
+﻿using MailServiceOutlookAdd_in.Models;
+using Microsoft.Office.Interop.Outlook;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Forms;
 using Outlook = Microsoft.Office.Interop.Outlook;
 
@@ -9,12 +12,16 @@ namespace MailServiceOutlookAdd_in
         public Outlook.Application OutlookApplication;
         public Outlook.Inspectors OutlookInspectors;
         private Outlook.Items Items;
+
+        public List<RecipientService> RecipientServices;
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
             MailServiceSettings mailServiceSettings = new MailServiceSettings();
+            RecipientServices = new List<RecipientService>();
+            RecipientServices.Add(mailServiceSettings.GetRecipientSettings().FirstOrDefault());
             try
             {
-                Outlook.Folder a = (Outlook.Folder)Application.ActiveExplorer().Session.DefaultStore.GetRootFolder().Folders[MailServiceSettings.RootProjectFolderName];
+                Outlook.Folder a = (Outlook.Folder)Application.ActiveExplorer().Session.DefaultStore.GetRootFolder().Folders[MailServiceSettings.RootFolder];
             }
             catch (System.Exception exception)
             {
@@ -37,14 +44,26 @@ namespace MailServiceOutlookAdd_in
         private void Items_ItemAdd(object Item)
         {
             MailItem mailItem = (MailItem)Item;
-            MailService mailService = new MailService(OutlookApplication);
-            mailItem.SaveSentMessageFolder = mailService.StartDialogService();
-            if (mailItem.SaveSentMessageFolder != null)
+            if (mailItem.FlagRequest != MailServiceSettings.AutoMailFlag)
             {
-                mailItem.Save();
-                mailItem.Send();
+                MailService mailService = new MailService(OutlookApplication);
+                string to = mailItem.To + "; " + mailItem.CC;
+                RecipientService recipient = RecipientServices.FirstOrDefault(r => r.Subject == mailItem.Subject);
+
+                Outlook.Folder selectedFolder = mailService.StartDialogService();
+                if (selectedFolder != null)
+                {
+                    mailItem.SaveSentMessageFolder = selectedFolder;
+                    mailItem.Save();
+                }
+                if (recipient != null)
+                {
+                    mailService.SendToRecipients(to, recipient);
+                }
             }
+            mailItem.Send();
         }
+
 
         private void OpenNewMailItem(Inspector Inspector)
         {
@@ -65,6 +84,7 @@ namespace MailServiceOutlookAdd_in
                 }
             }
         }
+
 
 
         private void ThisAddIn_Shutdown(object sender, System.EventArgs e)

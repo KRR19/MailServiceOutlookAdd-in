@@ -19,7 +19,7 @@ namespace MailServiceOutlookAdd_in
         }
         private string[] PathToArray(string path)
         {
-            string fullPath = MailServiceSettings.RootProjectFolderName + "\\" + path;
+            string fullPath = MailServiceSettings.RootFolder + "\\" + path;
             string[] strArrayOne = fullPath.Split('\\');
             return strArrayOne;
         }
