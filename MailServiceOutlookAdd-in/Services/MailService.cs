@@ -42,9 +42,8 @@ namespace MailServiceOutlookAdd_in
             mail.Body = recipient.Body;
             mail.DeleteAfterSubmit = true;
             mail.FlagRequest = MailServiceSettings.AutoMailFlag;
-            mail.Display(false);
-            mail.GetInspector.Activate();
-           // mail.Send();
+
+            mail.Send();
         }
     }
 }

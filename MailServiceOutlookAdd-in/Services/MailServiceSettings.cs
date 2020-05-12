@@ -13,6 +13,7 @@ namespace MailServiceOutlookAdd_in
         public static string QuestionMessageHeader { get; private set; } = "Speichern";
         public static string INBOX_FOLDER { get; set; }
         public static string AutoMailFlag { get; private set; } = "AutoMail";
+        public static string CopyMailFlag { get; private set; } = "Copy";
 
         public static string RootFolder { get; private set; }
 

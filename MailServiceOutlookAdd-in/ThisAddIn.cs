@@ -44,10 +44,17 @@ namespace MailServiceOutlookAdd_in
         private void Items_ItemAdd(object Item)
         {
             MailItem mailItem = (MailItem)Item;
+
+            if(mailItem.FlagRequest == MailServiceSettings.CopyMailFlag)
+            {
+                MAPIFolder folder = Application.ActiveExplorer().Session.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderSentMail);
+                mailItem.Move(folder);
+                return;
+            }
             if (mailItem.FlagRequest != MailServiceSettings.AutoMailFlag)
             {
                 MailService mailService = new MailService(OutlookApplication);
-                string to = mailItem.To + "; " + mailItem.CC;
+                string to = mailItem.To;
                 RecipientService recipient = RecipientServices.FirstOrDefault(r => r.Subject == mailItem.Subject);
 
                 Outlook.Folder selectedFolder = mailService.StartDialogService();
@@ -55,6 +62,9 @@ namespace MailServiceOutlookAdd_in
                 {
                     mailItem.SaveSentMessageFolder = selectedFolder;
                     mailItem.Save();
+                    MailItem copyMail = mailItem.Copy();
+                    copyMail.FlagRequest = MailServiceSettings.CopyMailFlag;
+                    copyMail.Save();
                 }
                 if (recipient != null)
                 {
@@ -80,7 +90,10 @@ namespace MailServiceOutlookAdd_in
                     MailService mailService = new MailService(OutlookApplication);
                     Outlook.Folder selectedFolder = mailService.StartDialogService();
                     if (selectedFolder != null)
-                        mailItem.Move(selectedFolder);
+                    {
+                        MailItem copyMail = mailItem.Copy();
+                        copyMail.Move(selectedFolder);
+                    }
                 }
             }
         }
