@@ -1,4 +1,4 @@
-﻿using MailServiceOutlookAdd_in.Models;
+﻿
 using Microsoft.Office.Interop.Outlook;
 using System.Windows.Forms;
 using Outlook = Microsoft.Office.Interop.Outlook;
@@ -9,13 +9,50 @@ namespace MailServiceOutlookAdd_in
     {
         private readonly Outlook.Application _Application;
 
-        public MailService()
-        {
-        }
-
         public MailService(Outlook.Application application)
         {
             _Application = application;
+        }
+
+        public void SendMail(MailItem mailItem)
+        {
+            if (mailItem.FlagRequest == MailServiceSettings.CopyMailFlag)
+            {
+                MAPIFolder folder = _Application.ActiveExplorer().Session.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderSentMail);
+                mailItem.Move(folder);
+                return;
+            }
+            if (mailItem.FlagRequest != MailServiceSettings.AutoMailFlag)
+            {
+
+                string to = $"{mailItem.To}; {mailItem.CC}";
+
+                Outlook.Folder selectedFolder = StartDialogService();
+                if (selectedFolder != null)
+                {
+                    mailItem.SaveSentMessageFolder = selectedFolder;
+                    mailItem.Save();
+                    MailItem copyMail = mailItem.Copy();
+                    copyMail.FlagRequest = MailServiceSettings.CopyMailFlag;
+                    copyMail.Save();
+                    SendToRecipients(to);
+                }
+            }
+            mailItem.Send();
+        }
+
+        public string IncomeMail(MailItem mailItem)
+        {
+            mailItem.UnRead = true;
+            mailItem.Save();
+            
+            Outlook.Folder selectedFolder = StartDialogService();
+            if (selectedFolder != null)
+            {
+                MailItem copyMail = mailItem.Copy();
+                copyMail.Move(selectedFolder);
+            }
+            return mailItem.EntryID;
         }
         public Outlook.Folder StartDialogService()
         {
@@ -34,12 +71,13 @@ namespace MailServiceOutlookAdd_in
             return selectedFolder;
         }
 
-        public void SendToRecipients(string to, RecipientService recipient)
+        public void SendToRecipients(string to)
         {
+
             MailItem mail = _Application.CreateItem(OlItemType.olMailItem);
-            mail.To = recipient.FilterByDomain(to);
-            mail.Subject = recipient.Subject;
-            mail.Body = recipient.Body;
+            mail.To = to;
+            mail.Subject = MailServiceSettings.Subject;
+            mail.Body = MailServiceSettings.Body;
             mail.DeleteAfterSubmit = true;
             mail.FlagRequest = MailServiceSettings.AutoMailFlag;
 

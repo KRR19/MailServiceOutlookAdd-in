@@ -1,6 +1,4 @@
-﻿using MailServiceOutlookAdd_in.Models;
-using Microsoft.Office.Interop.Outlook;
-using System.Collections.Generic;
+﻿using Microsoft.Office.Interop.Outlook;
 using System.Linq;
 using System.Windows.Forms;
 using Outlook = Microsoft.Office.Interop.Outlook;
@@ -13,63 +11,36 @@ namespace MailServiceOutlookAdd_in
         public Outlook.Inspectors OutlookInspectors;
         private Outlook.Items Items;
 
-        public List<RecipientService> RecipientServices;
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
-            MailServiceSettings mailServiceSettings = new MailServiceSettings();
-            RecipientServices = new List<RecipientService>();
-            RecipientServices.Add(mailServiceSettings.GetRecipientSettings().FirstOrDefault());
             try
             {
-                Outlook.Folder a = (Outlook.Folder)Application.ActiveExplorer().Session.DefaultStore.GetRootFolder().Folders[MailServiceSettings.RootFolder];
+
+                OutlookApplication = Application as Outlook.Application;
+                OutlookInspectors = OutlookApplication.Inspectors;
+                OutlookInspectors.NewInspector += new Microsoft.Office.Interop.Outlook.InspectorsEvents_NewInspectorEventHandler(OpenNewMailItem);
+
+                Outlook.Folder sentItems = (Outlook.Folder)Application.ActiveExplorer().Session.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderOutbox);
+                Items = sentItems.Items;
+                Items.ItemAdd += new Microsoft.Office.Interop.Outlook.ItemsEvents_ItemAddEventHandler(Items_ItemAdd);
             }
             catch (System.Exception exception)
             {
-                MessageBox.Show("Der in den Einstellungen angegebene Ordner wurde nicht gefunden!", "Achtung!",
+                MessageBox.Show($"{exception.Message} \n {exception.StackTrace}", "Achtung!",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
             }
-
-            OutlookApplication = Application as Outlook.Application;
-            OutlookInspectors = OutlookApplication.Inspectors;
-            OutlookInspectors.NewInspector += new Microsoft.Office.Interop.Outlook.InspectorsEvents_NewInspectorEventHandler(OpenNewMailItem);
-
-            Outlook.Folder sentItems = (Outlook.Folder)Application.ActiveExplorer().Session.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderOutbox);
-            Items = sentItems.Items;
-            Items.ItemAdd += new Microsoft.Office.Interop.Outlook.ItemsEvents_ItemAddEventHandler(Items_ItemAdd);
-
-            MailServiceSettings.INBOX_FOLDER = Application.ActiveExplorer().Session.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderInbox).Name;
         }
 
         private void Items_ItemAdd(object Item)
-        {
+        {            
             MailItem mailItem = (MailItem)Item;
 
-            if(mailItem.FlagRequest == MailServiceSettings.CopyMailFlag)
-            {
-                MAPIFolder folder = Application.ActiveExplorer().Session.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderSentMail);
-                mailItem.Move(folder);
-                return;
-            }
-            if (mailItem.FlagRequest != MailServiceSettings.AutoMailFlag)
+            string mails = mailItem.To + mailItem.CC;
+            if (MailServiceSettings.ActiveForEmail.Any(activeMail => mails.Contains(activeMail)))
             {
                 MailService mailService = new MailService(OutlookApplication);
-                string to = mailItem.To;
-                RecipientService recipient = RecipientServices.FirstOrDefault(r => r.Subject == mailItem.Subject);
-
-                Outlook.Folder selectedFolder = mailService.StartDialogService();
-                if (selectedFolder != null)
-                {
-                    mailItem.SaveSentMessageFolder = selectedFolder;
-                    mailItem.Save();
-                    MailItem copyMail = mailItem.Copy();
-                    copyMail.FlagRequest = MailServiceSettings.CopyMailFlag;
-                    copyMail.Save();
-                }
-                if (recipient != null)
-                {
-                    mailService.SendToRecipients(to, recipient);
-                }
+                mailService.SendMail(mailItem);
+                return;
             }
             mailItem.Send();
         }
@@ -78,27 +49,19 @@ namespace MailServiceOutlookAdd_in
         private void OpenNewMailItem(Inspector Inspector)
         {
             Outlook.MailItem mailItem = Inspector.CurrentItem as Outlook.MailItem;
-            if (mailItem != null)
+            if (mailItem == null)
             {
-                Outlook.MAPIFolder parentFolder = mailItem.Parent as Outlook.MAPIFolder;
-                string mailItemFolderName = parentFolder.Name;
-
-                if (mailItemFolderName == MailServiceSettings.INBOX_FOLDER)
-                {
-                    mailItem.UnRead = true;
-                    mailItem.Save();
-                    MailService mailService = new MailService(OutlookApplication);
-                    Outlook.Folder selectedFolder = mailService.StartDialogService();
-                    if (selectedFolder != null)
-                    {
-                        MailItem copyMail = mailItem.Copy();
-                        copyMail.Move(selectedFolder);
-                    }
-                }
+                return;
+            }
+            Outlook.MAPIFolder parentFolder = mailItem.Parent as Outlook.MAPIFolder;
+            string mailItemFolderName = parentFolder.Name;
+            MailServiceSettings.INBOX_FOLDER = Application.ActiveExplorer().Session.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderInbox).Name;
+            if (mailItemFolderName == MailServiceSettings.INBOX_FOLDER)
+            {
+                MailService mailService = new MailService(OutlookApplication);
+                mailService.IncomeMail(mailItem);
             }
         }
-
-
 
         private void ThisAddIn_Shutdown(object sender, System.EventArgs e)
         {
